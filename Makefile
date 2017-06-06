@@ -9,7 +9,7 @@ SRC_DIR=. src
 
 SRC_SUFFIX=cpp
 
-OBJ_DIR_NAME=.obj
+OBJ_DIR_NAME=../.obj
 OBJ_SUFFIX=o
 
 head_dir = $(foreach i,$(INC_DIR), -I$i)
@@ -42,6 +42,7 @@ endef
 
 
 #根据指定的SRC_DIR,调用create_obj生成obj变量
+# $(foreach i,$(SRC_DIR), $(eval $(call create_obj,$i,$(SRC_SUFFIX),$(OBJ_DIR_NAME),$(OBJ_SUFFIX))))
 $(foreach i,$(SRC_DIR), $(eval $(call create_obj,$i,$(SRC_SUFFIX),$(OBJ_DIR_NAME),$(OBJ_SUFFIX))))
 all_obj=$(foreach i,$(SRC_DIR), $(obj_$i))
 
