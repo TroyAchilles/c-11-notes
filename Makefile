@@ -13,8 +13,8 @@ OBJ_DIR_NAME=../.obj
 OBJ_SUFFIX=o
 
 head_dir = $(foreach i,$(INC_DIR), -I$i)
-cflags = $(head_dir) $(CFLAGS) -g 
-ldflags = -lpthread -std=c++0x
+cflags = $(head_dir) $(CFLAGS) -g -fpermissive -fno-elide-constructors
+ldflags = -lpthread -std=c++14 
 
 
 ######################################################################################
