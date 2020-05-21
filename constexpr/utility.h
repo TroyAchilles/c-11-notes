@@ -92,7 +92,7 @@ template<typename V, typename Tp>
     }
 
 template<typename V, typename Tp, typename A0, typename... Args>
-    auto my_apply(const V& v, std::size_t index, Tp const & tp, A0& a0, Args&... args)
+    auto my_apply(const V& v, std::size_t index, const Tp & tp, A0& a0, Args&... args)
     {
         return my_apply(v, index + 1, std::tuple_cat(tp, std::make_tuple(std::pair<std::string, A0&>(v[index], a0))), args...);
     }

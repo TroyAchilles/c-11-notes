@@ -28,10 +28,10 @@ auto a2t_impl(const Array& a, std::index_sequence<Idx...>)
     return std::make_tuple(a[Idx]...);
 }
 
-template<typename T, std::size_t N, typename Indices = std::make_index_sequence<N>>
+template<typename T, std::size_t N>
 auto a2t(const std::array<T, N>& a)
 {
-    return a2t_impl(a, Indices());
+    return a2t_impl(a, std::make_index_sequence<N>());
 }
 #endif
 
@@ -84,3 +84,20 @@ int main(void)
             );
     return 0;
 }
+
+
+#include <iostream>
+
+template <typename Tuple, typename F>
+void expand_tuple(Tuple&& t, F&& f)
+{
+
+}
+
+
+
+
+
+
+
+
