@@ -100,6 +100,20 @@ template<typename V, typename Tp, typename A0, typename... Args>
 #define META(...) auto meta(){\    
     auto vec = util::split(#__VA_ARGS__, ',');\
     return util::my_apply(vec, 0, std::tuple<>(), __VA_ARGS__);\
+    
+/******************* a really async, and not block current process ***********/
+template <typename F, typename... Args>
+auto really_async(F&& f, Args&&... args)
+-> std::future<typename std::result_of<F(Args...)>::type>
+{
+    using _Ret = typename std::result_of<F(Args...)>::type;
+    auto _func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+    std::packaged_task<_Ret()> tsk(std::move(_func));
+    auto _fut = tsk.get_future();
+    std::thread thd(std::move(tsk));
+    thd.detach();
+    return _fut;
+}
 }
 /***********************************************************/
 
