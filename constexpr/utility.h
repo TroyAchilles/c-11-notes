@@ -117,5 +117,26 @@ auto really_async(F&& f, Args&&... args)
 }
 /***********************************************************/
 
+template <typename T>
+struct ETS
+{
+        static const char* list[];
+};
+
+enum Speed
+{
+        S_50,
+        S_25,
+        S_15,
+};
+
+template <typename T>
+const char* convert(T t)
+{
+        return ETS<T>::list[t];
+}
+
+template <>
+const char* ETS<Speed>::list[] = {"50ms", "25ms", "15ms"};
 
 }//end namespace util
