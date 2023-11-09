@@ -243,6 +243,26 @@ struct has_myFunction {
     static constexpr bool value = decltype(test<T>(nullptr))::value;
 };
 
+template<typename T, typename... Args>
+struct has_member_foo
+{
+private:
+    template<typename U> static auto Check(int) -> decltype(std::declval<U>().foo(std::declval<Args>()...), std::true_type());
+
+    template<typename U> static std::false_type Check(...);
+public:
+    enum{ value = std::is_same<decltype(Check<T>(0)), std::true_type>::value };
+};
+#define HAS_MEMBER(member)\
+template<typename T, typename... Args>struct has_member_##member\
+{\
+private:\
+        template<typename U> static auto Check(int) -> decltype(std::declval<U>().member(std::declval<Args>()...), std::true_type()); \
+    template<typename U> static std::false_type Check(...);\
+public:\
+    enum{value = std::is_same<decltype(Check<T>(0)), std::true_type>::value};\
+};\
+
 // int main() {
 //     // 检查 MyClass 是否包含名为 myFunction 的成员函数，带一个 int 参数
 //     if (has_myFunction<MyClass, int>::value) {
