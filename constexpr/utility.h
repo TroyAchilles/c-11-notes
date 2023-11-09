@@ -139,4 +139,126 @@ const char* convert(T t)
 template <>
 const char* ETS<Speed>::list[] = {"50ms", "25ms", "15ms"};
 
+/*******************************检测类中是否存在某个成员变量****************************/
+// 定义一个类
+// class MyClass {
+// public:
+//     int someValue;
+// };
+
+// 创建一个辅助模板
+template <typename T>
+struct has_someValue {
+    template <typename C>
+    static std::true_type test(decltype(&C::someValue));
+    template <typename C>
+    static std::false_type test(...);
+
+    static constexpr bool value = decltype(test<T>(nullptr))::value;
+};
+
+// int main() {
+//     // 检查 MyClass 是否包含名为 someValue 的成员变量
+//     if (has_someValue<MyClass>::value) {
+//         std::cout << "MyClass contains someValue member." << std::endl;
+//     } else {
+//         std::cout << "MyClass does not contain someValue member." << std::endl;
+//     }
+
+//     return 0;
+// }
+
+
+template <class Obj, class K, typename... ObjArgs>
+class factory
+{
+    public:
+        static factory*  instance()
+        {
+            static factory _sfactory;
+            return &_sfactory;
+        }
+
+        std::shared_ptr<Obj> produce(K key, ObjArgs... args)
+        {
+            if (_map.find(key) == _map.end())
+                return std::shared_ptr<Obj>(0);
+            return std::shared_ptr<Obj>(_map[key](args...));
+        }
+
+    private:
+        factory() = default;
+        factory(const factory& ) = delete;
+        factory(factory&& ) = delete;
+    public:
+        std::map<K, std::function<Obj*(ObjArgs...)>> _map;
+
+    public:
+        template <typename T>
+        struct register_t
+        {
+            register_t(const K& key)
+            {
+                factory::instance()->_map.emplace(key, [](ObjArgs... args){
+                    return new T(args...);
+                });
+            }
+
+            typename std::enable_if<std::is_base_of<Obj,T>::value, char>::type pass;
+        };
+};
+
+template <class Fn, class... Args>
+ struct callable
+ {
+ private:
+     template<typename U>
+     static std::false_type check(...);
+
+     template<typename U>
+     static auto check(int)->decltype(std::declval<U>()(std::declval<Args>()...), std::true_type());
+
+ public:
+     enum { value = std::is_same<decltype(check<Fn>(0)), std::true_type>::value};
+ };
+
+
+// // 创建一个类
+// class MyClass {
+// public:
+//     void myFunction(int value) {
+//         // 类的成员函数带参数
+//     }
+// };
+
+// 辅助模板用于检查成员函数是否存在
+template <typename T, typename... Args>
+struct has_myFunction {
+    // 使用 SFINAE 技术检查成员函数是否存在
+    template <typename C>
+    static constexpr auto test(C* c) -> decltype(c->myFunction(std::declval<Args>()...), std::true_type{});
+    template <typename C>
+    static constexpr std::false_type test(...);
+
+    static constexpr bool value = decltype(test<T>(nullptr))::value;
+};
+
+// int main() {
+//     // 检查 MyClass 是否包含名为 myFunction 的成员函数，带一个 int 参数
+//     if (has_myFunction<MyClass, int>::value) {
+//         std::cout << "MyClass contains myFunction member function with an int parameter." << std::endl;
+//     } else {
+//         std::cout << "MyClass does not contain myFunction member function with an int parameter." << std::endl;
+//     }
+
+//     // 检查 MyClass 是否包含 myFunction 成员函数，带其他参数
+//     if (has_myFunction<MyClass, double>::value) {
+//         std::cout << "MyClass contains myFunction member function with a double parameter." << std::endl;
+//     } else {
+//         std::cout << "MyClass does not contain myFunction member function with a double parameter." << std::endl;
+//     }
+
+//     return 0;
+// }
+
 }//end namespace util
